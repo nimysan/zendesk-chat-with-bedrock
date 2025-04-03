@@ -1,6 +1,21 @@
 # Zendesk 智能客服机器人
 
-基于Zendesk Messaging API和Dify知识库的智能客服机器人系统。该系统可以自动回应客户询问，并通过Dify的知识库提供智能化的客服支持。
+基于[Zendesk Conversations API](https://developer.zendesk.com/documentation/conversations/getting-started/api-quickstart/)和Dify知识库的智能客服机器人系统。该系统可以自动回应客户询问，并通过Dify的知识库提供智能化的客服支持。
+
+## API验证场景
+
+本项目主要用于验证Zendesk Conversations API的功能和集成流程：
+
+1. 消息接收：通过Webhook接收来自Zendesk Web Widget的客户消息
+2. 自动回复：使用Conversations API发送自动回复消息
+3. 会话管理：处理消息重试机制和会话状态维护
+4. 知识库集成：结合Dify API提供智能化的回答
+
+通过这个验证场景，我们可以了解：
+- Zendesk Conversations API的基本工作流程
+- Webhook的配置和消息处理方式
+- 如何实现可靠的消息投递和重试机制
+- 如何集成外部知识库来增强回复能力
 
 ## 在线体验
 
