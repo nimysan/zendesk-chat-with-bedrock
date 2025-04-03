@@ -137,8 +137,7 @@ class DifyClient {
             if (line.startsWith('data: ')) {
               try {
                 const data = JSON.parse(line.slice(6));
-                console.log("--- event --- " + data.event);
-                
+                // console.log("--- event --- " + data.event);
                 if (data.event === 'agent_thought') {
                   const content = data.thought || data.answer || '';
                   if (content) {
@@ -171,7 +170,7 @@ class DifyClient {
           if (lastThought) {
             fullResponse = lastThought;
           }
-          console.log("type of " + resolve)
+          // console.log("type of " + resolve)
           resolve(fullResponse);
         });
 
