@@ -1,0 +1,10 @@
+{
+  "watch": ["*.js"],
+  "ignore": ["node_modules/"],
+  "ext": "js,json",
+  "delay": "2",
+  "env": {
+    "NGROK_AUTHTOKEN": "2vAJRkkq8w1ZZI5QzLN2M2Qp8FC_4fZ1KuqwmHmbqHxhWi46B",
+    "NGROK_DOMAIN": "zendesk-chat-with-bedrock.ngrok.dev"
+  }
+}
