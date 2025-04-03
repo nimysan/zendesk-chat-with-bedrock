@@ -1,42 +1,144 @@
-# Zendesk chatbot来支持通话机器人
+# Zendesk 智能客服机器人
 
-## 第一步 初始化机器人
+基于Zendesk Messaging API和Dify知识库的智能客服机器人系统。该系统可以自动回应客户询问，并通过Dify的知识库提供智能化的客服支持。
 
-https://support.zendesk.com/hc/en-us/articles/4500748175258-Installing-the-Web-Widget-for-messaging
+## 功能特点
 
-## 第二步 如何让zendesk chatbot自动回应客户
+- 集成Zendesk Messaging API实现自动回复
+- 对接Dify知识库，提供智能问答能力
+- 支持通过ngrok进行本地开发和测试
+- 使用PM2进行生产环境部署和管理
+- 完整的日志记录系统
 
-[教程似乎要看这个](https://developer.zendesk.com/documentation/conversations/getting-started/api-quickstart/)
+## 环境要求
 
-按照这个操作， 可以成功
+- Node.js (建议版本 >= 14)
+- npm 包管理器
+- ngrok (用于开发环境)
+- PM2 (用于生产环境部署)
 
-## 第三步 在nodejs集成dify api来完成知识库接入
+## 快速开始
 
+### 1. 安装依赖
 
-## 启动和接入
+```bash
+npm install
+```
 
-NGROK_AUTHTOKEN=2vAJRkkq8w1ZZI5QzLN2M2Qp8FC_4fZ1KuqwmHmbqHxhWi46B node index.js
+### 2. 环境配置
 
-App listening on port 8000
+1. 复制环境变量模板文件：
+```bash
+cp .env.example .env
+```
 
+2. 配置以下环境变量：
 
-## 调试通了， 但是有个问题。 zendesk call message会retry
+```plaintext
+# Dify API配置
+DIFY_API_BASE_URL=https://dify.plaza.red/v1
+DIFY_WORKFLOW_API_KEY=your_workflow_api_key_here
+DIFY_AGENT_API_KEY=your_agent_api_key_here
+DIFY_USER_ID=your_user_id_here
 
-## 整体设置步骤参考 
+# Ngrok配置
+NGROK_AUTHTOKEN=your_ngrok_auth_token_here
+NGROK_DOMAIN=your_ngrok_domain_here
 
-# Sunshine Conversations API Examples
+# Zendesk配置
+ZENDESK_SUBDOMAIN=your_zendesk_subdomain
+KEY_ID=your_key_id
+KEY_SECRET=your_key_secret
+```
 
-## Get started
+### 3. Zendesk配置
 
-For a detailed guide, see the [Sunshine Conversations API Quickstart](https://developer.zendesk.com/documentation/conversations/getting-started/api-quickstart/):
+1. 安装Zendesk Web Widget：
+   - 访问 [Zendesk Web Widget安装指南](https://support.zendesk.com/hc/en-us/articles/4500748175258-Installing-the-Web-Widget-for-messaging)
+   - 按照指南完成Widget的安装和基础配置
 
-### Node.js
+2. 配置Webhook：
+   - 在Zendesk Admin Center创建webhook
+   - 设置webhook endpoint为你的ngrok URL (例如：`https://your-domain.ngrok.io/messages`)
+   - 创建并保存API密钥
 
-1. Clone the repository
-2. Go to the _nodejs_ subdirectory
-3. Install dependencies (`npm install`)
-4. Use [ngrok](https://ngrok.com/) to create a secure tunnel to port 8000 (`ngrok http 8000` after ngrok is installed on your PC)
-5. Create a webhook and API key in Admin Center and point it at the full url for the `/messages` endpoint (e.g. `https://MY-NGROK-DOMAIN.ngrok.io/messages`)
-6. Update `index.js` to set proper values for `ZENDESK_SUBDOMAIN`, `KEY_ID` and `KEY_SECRET`
-7. Run the server (`node index`)
-8. Send messages to your Web Widget and watch the auto-replies roll in
+### 4. 开发环境运行
+
+```bash
+# 使用nodemon启动开发服务器
+npm run dev
+
+# 或者使用普通模式启动
+npm start
+```
+
+### 5. 生产环境部署
+
+使用提供的部署脚本进行自动化部署：
+
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+部署脚本会自动：
+- 安装所需依赖
+- 安装并配置PM2
+- 创建日志目录
+- 启动应用程序
+- 配置开机自启
+
+## 日志管理
+
+部署后可以通过以下命令查看各类日志：
+
+```bash
+# 查看应用状态
+pm2 status
+
+# 实时监控
+pm2 monit
+
+# 查看所有日志
+pm2 logs zcis
+
+# 查看控制台输出
+tail -f ./logs/out.log
+
+# 查看错误日志
+tail -f ./logs/error.log
+
+# 查看应用日志
+tail -f ./logs/app.log
+```
+
+## 开发指南
+
+### 项目结构
+
+```
+.
+├── routes/          # 路由处理
+├── services/        # 业务逻辑
+├── ai_chatbot.js    # AI对话处理
+├── DifyClient.js    # Dify API客户端
+├── index.js         # 应用入口
+└── deploy.sh        # 部署脚本
+```
+
+### 主要依赖
+
+- express: Web服务器框架
+- sunshine-conversations-client: Zendesk会话API客户端
+- @ngrok/ngrok: 内网穿透工具
+- axios: HTTP客户端
+- dotenv: 环境变量管理
+- nodemon: 开发环境热重载
+
+## 许可证
+
+MIT License
+
+## 作者
+
+yexw@amazon.com
