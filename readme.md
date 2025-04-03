@@ -2,6 +2,15 @@
 
 基于Zendesk Messaging API和Dify知识库的智能客服机器人系统。该系统可以自动回应客户询问，并通过Dify的知识库提供智能化的客服支持。
 
+## 在线体验
+
+您可以通过以下链接体验智能客服机器人的功能：
+[在线体验环境](https://d24grmpnk1tnqa.cloudfront.net/zdify.html)
+
+### 效果展示
+
+![智能客服机器人界面](screenshot.png)
+
 ## 功能特点
 
 - 集成Zendesk Messaging API实现自动回复
