@@ -7,6 +7,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const SunshineConversationsApi = require("sunshine-conversations-client");
 const { handleMessages } = require("./routes/messages");
+// const crawlerRoutes = require("./routes/crawler");
 
 require('dotenv').config();
 
@@ -25,15 +26,23 @@ basicAuth.password = KEY_SECRET;
 
 const apiInstance = new SunshineConversationsApi.MessagesApi();
 const apiActivityInstance = new SunshineConversationsApi.ActivitiesApi()
+const apiSwithBoardInstance = new SunshineConversationsApi.SwitchboardActionsApi()
 
 // Initialize Express server
 const app = express();
+
+// Static files and body parser
+app.use(express.static('public'));
 app.use(bodyParser.json());
+
+// Routes
+// app.use('/api', crawlerRoutes);
 
 // Add apiInstance to request object for use in route handlers
 app.use((req, res, next) => {
   req.apiInstance = apiInstance;
-  req.apiActivityInstance = apiActivityInstance
+  req.apiActivityInstance = apiActivityInstance;
+  req.apiSwithBoardInstance = apiSwithBoardInstance;
   next();
 });
 

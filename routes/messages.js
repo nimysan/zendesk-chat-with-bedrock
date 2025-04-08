@@ -3,6 +3,7 @@
 const SunshineConversationsApi = require("sunshine-conversations-client");
 const AIChatbot = require("../ai_chatbot");
 const MessageHistory = require("../services/messageHistory");
+const { json } = require("body-parser");
 
 const chatbot = new AIChatbot();
 const messageHistory = new MessageHistory();
@@ -10,13 +11,34 @@ const messageHistory = new MessageHistory();
 async function sendMessage(apiInstance, appId, conversationId, text) {
   const messagePost = new SunshineConversationsApi.MessagePost();
   messagePost.setAuthor({ type: "business" });
-  messagePost.setContent({ type: "text", text });
+  //增加Reply按钮 -  https://developer.zendesk.com/documentation/conversations/messaging-platform/programmable-conversations/structured-messages/#reply-buttons
+  messagePost.setContent({
+    type: "text", text, "actions": [
+      {
+        type: "reply",
+        text: "转人工",
+        iconUrl: "https://example.org/taco.png",
+        payload: "转人工"
+      }
+    ]
+  });
   const response = await apiInstance.postMessage(
     appId,
     conversationId,
     messagePost
   );
   // console.log("API RESPONSE:\n", JSON.stringify(response, null, 4));
+}
+
+async function passControl(apiSwitchBoardInstance, appId, conversationId) {
+  var passControlBody = new SunshineConversationsApi.PassControlBody();
+  passControlBody.switchboardIntegration = "zd-agentWorkspace";
+  console.log("--- pass control --- " + JSON.stringify(passControlBody)); // PassControlBody | 
+  await apiSwitchBoardInstance.passControl(appId, conversationId, passControlBody).then(function (data) {
+    console.log('API called successfully. Returned data: ' + data);
+  }, function (error) {
+    console.error(error);
+  });
 }
 
 async function sendTypingActivity(apiActivityInstance, appId, conversationId) {
@@ -37,7 +59,33 @@ async function handleMessages(req, res) {
     const { conversation, message } = event.payload;
 
     // 检查消息是否已经处理过
+    // 过滤条件检查
     if (message.author.type === "user" && !messageHistory.isMessageProcessed(message.id)) {
+      // 检查消息内容是否为空
+      if (!message.content.text || message.content.text.trim() === '') {
+        console.log(`消息 ${message.id} 被过滤：内容为空`);
+        return res.end();
+      }
+
+      // 检查消息长度是否超过限制（例如1000字符）
+      if (message.content.text.length > 1000) {
+        console.log(`消息 ${message.id} 被过滤：内容超过1000字符`);
+        await sendMessage(
+          req.apiInstance,
+          appId,
+          conversation.id,
+          "抱歉，您的消息太长了，请缩短后重试。"
+        );
+        return res.end();
+      }
+
+      // 检查消息是否包含敏感词（示例）
+      const sensitiveWords = ['spam', 'test', '测试'];
+      if (sensitiveWords.some(word => message.content.text.toLowerCase().includes(word))) {
+        console.log(`消息 ${message.id} 被过滤：包含敏感词`);
+        return res.end();
+      }
+
       // 标记消息为正在处理
       messageHistory.addMessage(message.id);
       console.log("app id " + appId + " conversion id " + JSON.stringify(conversation));
@@ -47,6 +95,11 @@ async function handleMessages(req, res) {
         const startTime = Date.now();
         await sendTypingActivity(req.apiActivityInstance, appId, conversation.id);
 
+        if("转人工"===message.content.text){
+          await passControl(req.apiSwithBoardInstance, appId, conversation.id);
+          return;
+        }
+        
         // 使用AIChatbot处理用户输入
         const response = await chatbot.processInput(message.content.text, {
           mode: 'agent',
