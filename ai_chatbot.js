@@ -1,12 +1,14 @@
 "use strict";
 
 const { workflowCall, agentStreamCall } = require('./DifyClient');
+const BedrockClient = require('./BedrockClient');
 
 class AIChatbot {
   constructor(config = {}) {
     this.config = {
       ...config
     };
+    this.bedrockClient = new BedrockClient();
   }
 
   /**
@@ -22,14 +24,24 @@ class AIChatbot {
     // console.log(`使用${mode}模式处理用户输入:`, userInput);
 
     try {
-      if (mode === 'workflow') {
-        return await workflowCall(userInput, options.difyApiKey);
-      } else {
-        return await agentStreamCall(
-          userInput,
-          options.difyApiKey,
-          options.onProgress
-        );
+      switch (mode) {
+        case 'workflow':
+          return await workflowCall(userInput, options.difyApiKey);
+        case 'agent':
+          return await agentStreamCall(
+            userInput,
+            options.difyApiKey,
+            options.onProgress
+          );
+        case 'bedrock':
+          return await this.bedrockClient.processInputWithStream(userInput, {
+            agentId: process.env.BEDROCK_AGENT_ID,
+            agentAliasId: process.env.BEDROCK_AGENT_ALIAS_ID,
+            sessionId: options.sessionId,
+            onProgress: options.onProgress
+          });
+        default:
+          throw new Error(`不支持的模式: ${mode}`);
       }
     } catch (error) {
       console.error('AI处理错误:', error);

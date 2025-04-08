@@ -7,11 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --no-deprecation index.js",
     "dev": "nodemon --no-deprecation index.js",
-    "start:watch": "nodemon --no-deprecation index.js"
+    "start:watch": "nodemon --no-deprecation index.js",
+    "test:bedrock": "node test-bedrock.js"
   },
   "author": "yexw@amazon.com",
   "license": "MIT",
   "dependencies": {
+    "@aws-sdk/client-bedrock-agent-runtime": "^3.782.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.784.0",
     "@ngrok/ngrok": "^1.4.1",
     "axios": "^1.8.4",
     "body-parser": "1.19.0",

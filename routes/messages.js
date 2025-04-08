@@ -101,15 +101,29 @@ async function handleMessages(req, res) {
         }
         
         // 使用AIChatbot处理用户输入
+        const mode = process.env.AI_MODE || 'agent'; // 可选值：'agent'(dify), 'bedrock'
         const response = await chatbot.processInput(message.content.text, {
-          mode: 'agent',
+          mode: mode,
           difyApiKey: process.env.DIFY_AGENT_API_KEY,
+          sessionId: conversation.id, // 使用会话ID作为bedrock的sessionId
           onProgress: async (chunk) => {
+            let responseText = chunk.content;
+            console.log("----responseText ---  " + responseText)
+            // // 如果是bedrock模式且有引用，添加引用信息
+            // if (mode === 'bedrock' && chunk.citations && chunk.citations.length > 0) {
+            //   responseText += '\n\n参考资料：\n';
+            //   chunk.citations.forEach((citation, index) => {
+            //     if (citation.snippetText) {
+            //       responseText += `${index + 1}. ${citation.snippetText}\n`;
+            //     }
+            //   });
+            // }
+            
             await sendMessage(
               req.apiInstance,
               appId,
               conversation.id,
-              chunk.content
+              responseText
             );
           }
         });
